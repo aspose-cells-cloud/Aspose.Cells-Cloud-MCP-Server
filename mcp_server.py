@@ -1,0 +1,58 @@
+import logging
+import os
+import FastMCP
+
+import core.convert
+
+mcp = FastMCP('Aspose.Words MCP Server')
+
+def _setup_logging():
+    level = os.getenv('LOG_LEVEL', '')
+    logging.basicConfig(level=getattr(logging, level, logging.INFO), format='%(asctime)s - %(levelname)s - %(message)s')
+    return logging.getLogger('mcp')
+
+
+
+def register_tools() -> None:
+    @mcp.tool(description="Upload a file to Aspose Cloud Storage.")
+    def upload_file(file_b64string: str, file_path :str,storage_name:str =None):
+        return core.io.upload_file(file_b64string,file_path,storage_name)
+    pass
+
+    @mcp.tool(description="Convert a local Excel file to a pdf file")
+    def convert_local_excel_to_pdf(excel_b64string: str):
+        return core.convert.convert_spreadsheet_to_pdf( excel_b64string )
+    pass
+
+    @mcp.tool(description="Convert a local ODS file to a pdf file")
+    def convert_local_ods_to_pdf(ods_b64string: str):
+        return core.convert.convert_spreadsheet_to_pdf( ods_b64string )
+    pass
+
+    @mcp.tool(description="Convert a local Excel file to a csv file")
+    def convert_local_excel_to_csv(excel_b64string: str):
+        return core.convert.convert_spreadsheet_to_csv( excel_b64string )
+    pass
+
+    @mcp.tool(description="Convert a local Excel file to a json file")
+    def convert_local_excel_to_json(excel_b64string: str):
+        return core.convert.convert_spreadsheet_to_json( excel_b64string )
+    pass
+def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, path: str='/mcp', license_path: str | None=None):
+    logger = _setup_logging()
+    register_tools()
+    tr = (transport or os.getenv('MCP_TRANSPORT') or os.getenv('TRANSPORT') or 'stdio').strip().lower()
+    host_env = (os.getenv('MCP_HOST') or os.getenv('HOST') or host)
+    port_env = int(os.getenv('MCP_PORT') or os.getenv('PORT') or port)
+    path_http_env = (os.getenv('MCP_PATH') or path)
+    path_sse_env = (os.getenv('MCP_SSE_PATH') or '/sse')
+    logger.info('Starting Aspose.Words MCP Server (FastMCP)...')
+    logger.info(f'Transport: %s', tr)
+    if tr in {'streamable-http', 'sse'}:
+        path_for_tr = path_sse_env if tr == 'sse' else path_http_env
+        logger.info('Listening on http://%s:%s%s (%s)', host_env, port_env, path_for_tr, tr)
+        mcp.run(transport=tr, host=host_env, port=port_env, path=path_for_tr)
+    else:
+        mcp.run(transport='stdio')
+if __name__ == '__main__':
+    run_server()

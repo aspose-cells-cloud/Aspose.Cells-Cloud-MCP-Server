@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aspose-cells-cloud-mcp"
+version = "26.3.0"
+description = "MCP server for Aspose.Cells Cloud automation (FastMCP-based)"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+authors = [
+  { name = "Aspose", email = "support@aspose.com" }
+]
+license = { file = "LICENSE" }
+dependencies = [
+  "fastmcp",
+  "asposecellsclou>=25.11.0",
+]
+
+keywords = [
+  "MCP",
+  "Aspose",
+  "Aspose.Cells Cloud",
+  "Excel",
+  "Xlsx",
+  "PDF",
+  "server",
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Topic :: Office/Business",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+"Documentation" = "https://github.com/aspose-cells-cloud/Aspose.Cells-Cloud-MCP-Server#readme"
+"Repository" = "https://github.com/aspose-cells-cloud/Aspose.Cells-Cloud-MCP-Server"
+"Free Support" = "https://forum.aspose.cloud/c/cells/7"
+
+[tool.setuptools]
+py-modules = ["mcp_server"]
+
+[tool.setuptools.packages.find]
+include = ["core*", "aliases*"]
+
+[project.scripts]
+aspose-cells-cloud-mcp = "mcp_server:run_server"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
