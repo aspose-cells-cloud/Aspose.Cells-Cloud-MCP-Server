@@ -1,5 +1,5 @@
 from utils.spreadsheet_util import *
-from asposecellscloud.requests import *
+from asposecellscloud.requests import SaveSpreadsheetAsRequest
 from asposecellscloud.models import *
 import base64
 
@@ -17,7 +17,8 @@ def create_spreadsheet(spreadsheet_name:str ,format:str, folder:str, storage_nam
     get_cells_cloud_client().create_spreadsheet(request)
 
 def save_spreadsheet_as(spreadsheet_name:str ,format:str, save_path:str = None ,folder:str=None ,storage_name :str =None ):
-    request = SaveSpreadsheetAsRequest( spreadsheet_name, format)
+    request = SaveSpreadsheetAsRequest( spreadsheet_name, format  )
+    request
     if save_path is not None:
         save_options_data = SaveOptionsData()
         save_options_data.filename = save_path

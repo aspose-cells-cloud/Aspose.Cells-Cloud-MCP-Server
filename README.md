@@ -8,20 +8,9 @@
 
 ## Features
 
-- Create documents; read/write text, headings, and paragraphs
-- Text formatting (font, size, style, color, underline)
-- Page and section breaks; page setup (margins, orientation, paper size, columns)
-- Lists (bulleted/numbered)
-- Tables: create, auto-fit, merge cells, alignment, shading, paddings, column widths, header styling
-- Footnotes and endnotes: add, convert, anchor-based operations, validation
-- Comments: get by author, by paragraph, all comments
-- Document properties: read/write (title, author, subject, keywords)
-- Protection: protect/unprotect, partial editing restrictions
-- Bookmarks, hyperlinks
-- Watermarks (text/image)
-- Export as Base64 (DOCX, PDF, etc.), advanced export options
-- Render page to image (PNG, etc.)
-- In-memory document management: copy, save as, list, delete, merge
+- Upload the spreadsheet to Aspose Cloud Storage.
+- Save the spreadsheet as different format file in Aspose Cloud Storage.
+- 
 
 ## Requirements
 
