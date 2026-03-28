@@ -4,7 +4,7 @@ import FastMCP
 
 import core.convert
 
-mcp = FastMCP('Aspose.Words MCP Server')
+mcp = FastMCP('Aspose.Cells Cloud MCP Server')
 
 def _setup_logging():
     level = os.getenv('LOG_LEVEL', '')
@@ -47,15 +47,18 @@ def register_tools() -> None:
     def convert_local_excel(excel_b64string: str, format:str):
         return core.convert.convert_spreadsheet( excel_b64string , format=format )
     pass
-def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, path: str='/mcp', license_path: str | None=None):
+def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, path: str='/mcp', client_id: str | None=None, client_secret: str| None=None) -> None:
     logger = _setup_logging()
     register_tools()
     tr = (transport or os.getenv('MCP_TRANSPORT') or os.getenv('TRANSPORT') or 'stdio').strip().lower()
+    if client_id is not None and client_secret is not None:
+        os.environ['ASPOSE_CLOUD_CLIENT_ID'] = client_id
+        os.environ['ASPOSE_CLOUD_SECRET_KEY'] = client_secret
     host_env = (os.getenv('MCP_HOST') or os.getenv('HOST') or host)
     port_env = int(os.getenv('MCP_PORT') or os.getenv('PORT') or port)
     path_http_env = (os.getenv('MCP_PATH') or path)
     path_sse_env = (os.getenv('MCP_SSE_PATH') or '/sse')
-    logger.info('Starting Aspose.Words MCP Server (FastMCP)...')
+    logger.info('Starting Aspose.Cells Cloud MCP Server (FastMCP)...')
     logger.info(f'Transport: %s', tr)
     if tr in {'streamable-http', 'sse'}:
         path_for_tr = path_sse_env if tr == 'sse' else path_http_env
