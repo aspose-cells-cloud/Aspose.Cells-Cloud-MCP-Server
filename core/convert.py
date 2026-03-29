@@ -1,7 +1,10 @@
 import os
 from asposecellscloud.requests import *
-from utils.spreadsheet_util import *
+from asposecellscloud.apis import  *
 import base64
+
+from core.utils.spreadsheet_util import get_cells_cloud_client
+
 
 
 def convert_spreadsheet_to_pdf( file_content_b64string :str  )  -> str:
@@ -10,6 +13,8 @@ def convert_spreadsheet_to_pdf( file_content_b64string :str  )  -> str:
     with open(temp_file_path, "rb") as file:
         file_bytes = file.read()
     return  base64.b64encode(file_bytes)
+
+
 
 def convert_spreadsheet_to_html( cells_cloud_client : CellsApi, file_content_b64string :str ) -> str:
     request = ConvertSpreadsheetRequest( base64.b64decode( file_content_b64string.strip()),"html" )

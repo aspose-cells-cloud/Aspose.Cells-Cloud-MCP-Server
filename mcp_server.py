@@ -1,6 +1,6 @@
 import logging
 import os
-import FastMCP
+from fastmcp import FastMCP
 
 import core.convert
 
