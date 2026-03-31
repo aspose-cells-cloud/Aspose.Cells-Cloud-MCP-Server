@@ -14,7 +14,7 @@ authors = [
 license = { file = "LICENSE" }
 dependencies = [
   "fastmcp",
-  "asposecellsclou>=25.11.0",
+  "asposecellsclou>=26.1.0",
 ]
 
 keywords = [

@@ -52,8 +52,10 @@ def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, 
     register_tools()
     tr = (transport or os.getenv('MCP_TRANSPORT') or os.getenv('TRANSPORT') or 'stdio').strip().lower()
     if client_id is not None and client_secret is not None:
+        logger.info(f"Client ID( {client_id}) and Client Secret ({client_secret})")
         os.environ['ASPOSE_CLOUD_CLIENT_ID'] = client_id
         os.environ['ASPOSE_CLOUD_SECRET_KEY'] = client_secret
+
     host_env = (os.getenv('MCP_HOST') or os.getenv('HOST') or host)
     port_env = int(os.getenv('MCP_PORT') or os.getenv('PORT') or port)
     path_http_env = (os.getenv('MCP_PATH') or path)
@@ -66,5 +68,6 @@ def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, 
         mcp.run(transport=tr, host=host_env, port=port_env, path=path_for_tr)
     else:
         mcp.run(transport='stdio')
+
 if __name__ == '__main__':
     run_server()
