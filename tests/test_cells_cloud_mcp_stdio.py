@@ -42,8 +42,6 @@ class TestCellsCloudMCPStdio:
             env=env_vars
         )
         async with Client(transport) as client:
-            # os.environ["ASPOSE_CLOUD_CLIENT_ID"] = "a73d6131-1f51-4fde-bc2e-bd499ed3fc22"
-            # os.environ["ASPOSE_CLOUD_CLIENT_SECRET"] = "b770daf30685a37aa61c08ddcbf232b2"
             # 2. Test by listing all available tools to verify that the service has started and is interactive
             tools = await client.list_tools()
             tool_names = [t.name for t in tools]
