@@ -5,6 +5,8 @@ import asyncio
 import base64
 import binascii
 from fastmcp import Client
+from fastmcp.client import StdioTransport
+
 from tests.test_data_handler import get_book1_xlsx
 
 SERVER_FILE_PATH = "mcp_server.py"
@@ -33,10 +35,15 @@ class TestCellsCloudMCPStdio:
         """
         # 1. Start the client, it will automatically start the server.py subprocess
         # Note: Here, a file path is passed, not a module instance
-
-        async with Client(SERVER_FILE_PATH) as client:
-            os.environ["ASPOSE_CLOUD_CLIENT_ID"] = "a73d6131-1f51-4fde-bc2e-bd499ed3fc22"
-            os.environ["ASPOSE_CLOUD_CLIENT_SECRET"] = "b770daf30685a37aa61c08ddcbf232b2"
+        env_vars = {"ASPOSE_CLOUD_CLIENT_ID": os.getenv("CellsCloudClientId"),"ASPOSE_CLOUD_CLIENT_SECRET": os.getenv("CellsCloudClientSecret")}
+        transport = StdioTransport(
+            command="python",
+            args=[SERVER_FILE_PATH],
+            env=env_vars
+        )
+        async with Client(transport) as client:
+            # os.environ["ASPOSE_CLOUD_CLIENT_ID"] = "a73d6131-1f51-4fde-bc2e-bd499ed3fc22"
+            # os.environ["ASPOSE_CLOUD_CLIENT_SECRET"] = "b770daf30685a37aa61c08ddcbf232b2"
             # 2. Test by listing all available tools to verify that the service has started and is interactive
             tools = await client.list_tools()
             tool_names = [t.name for t in tools]
