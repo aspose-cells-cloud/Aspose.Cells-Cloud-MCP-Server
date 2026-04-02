@@ -45,7 +45,7 @@ def register_tools() -> None:
         return core.io.save_spreadsheet_as(filename,target_format,target_file_path,folder,storage_name)
 
     @mcp.tool(description="Convert Spreadsheet content (provided as a Base64 string) to a specified format such as PDF, CSV, HTML, or XPS.")
-    def convert_spreadsheet(excel_b64string: str, format:str):
+    def convert_spreadsheet(spreadsheet_b64string: str, format:str):
         """
        Converts a Spreadsheet file to various other formats.
 
@@ -53,14 +53,14 @@ def register_tools() -> None:
        and a target format string, returning the converted file content.
 
        Parameters:
-       - excel_b64string: The content of the Spreadsheet file (e.g., .xlsx, .ods, .txt, .json, .xml, .xls, and so on) encoded as a Base64 string.
+       - spreadsheet_b64string: The content of the Spreadsheet file (e.g., .xlsx, .ods, .txt, .json, .xml, .xls, and so on) encoded as a Base64 string.
                           Note: Do not pass a file path; the file content must be read and encoded first.
        - format: The desired output format (e.g., 'PDF', 'CSV', 'HTML', 'XPS', 'ODS').
        """
-        return core.convert.convert_spreadsheet( excel_b64string , format=format )
+        return core.convert.convert_spreadsheet( spreadsheet_b64string , format=format )
 
     @mcp.tool(name="convert_excel_to_pdf", description="Convert an Excel file to PDF. Input must be provided as a Base64 encoded string.")
-    def convert_excel_to_pdf(excel_b64string: str):
+    def convert_excel_to_pdf(spreadsheet_b64string: str):
         """
         Converts Excel content (XLSX/XLS) to a PDF document.
 
@@ -68,10 +68,10 @@ def register_tools() -> None:
         Use this when the user wants to transform a spreadsheet into a non-editable format.
 
         Parameters:
-        - excel_b64string: The content of the Excel file encoded as a Base64 string.
+        - spreadsheet_b64string: The content of the Excel file encoded as a Base64 string.
                            Do not pass a file path; the content must be read and encoded first.
         """
-        return convert_spreadsheet(excel_b64string, format = 'pdf')
+        return core.convert.convert_spreadsheet_to_pdf(spreadsheet_b64string)
 
     @mcp.tool(name="convert_ods_to_pdf",description="Convert a ODS file to PDF. Input must be provided as a Base64 encoded string.")
     def convert_ods_to_pdf(ods_b64string: str):
@@ -85,10 +85,10 @@ def register_tools() -> None:
         - ods_b64string: The content of the Open Document file encoded as a Base64 string.
                            Do not pass a file path; the content must be read and encoded first.
         """
-        return convert_spreadsheet(ods_b64string,"pdf")
+        return core.convert.convert_spreadsheet_to_pdf(ods_b64string)
 
     @mcp.tool(name="convert_excel_to_csv",description="Convert Excel content (provided as a Base64 string) to CSV format.")
-    def convert_excel_to_csv(excel_b64string: str):
+    def convert_excel_to_csv(spreadsheet_b64string: str):
         """
          Converts an Excel file to CSV format.
 
@@ -96,13 +96,13 @@ def register_tools() -> None:
          and returns the converted CSV data (usually as a string or Base64).
 
          Parameters:
-         - excel_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
+         - spreadsheet_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
                             Note: Do not pass a file path; the file content must be read and encoded first.
          """
-        return convert_spreadsheet(excel_b64string,  'csv')
+        return core.convert.convert_excel_to_csv(spreadsheet_b64string)
 
     @mcp.tool(name="convert_excel_to_json",description="Convert Excel content (provided as a Base64 string) to JSON format")
-    def convert_excel_to_json(excel_b64string: str):
+    def convert_excel_to_json(spreadsheet_b64string: str):
         """
         Converts an Excel file to JSON format.
 
@@ -110,14 +110,14 @@ def register_tools() -> None:
         and returns the converted JSON data representing the spreadsheet rows and columns.
 
         Parameters:
-        - excel_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
+        - spreadsheet_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
                            Note: Do not pass a file path; the file content must be read and encoded first.
         """
-        return convert_spreadsheet(excel_b64string,"json")
+        return core.convert.convert_spreadsheet_to_json(spreadsheet_b64string)
 
     @mcp.tool(name ="convert_excel",
         description="Convert Excel content (provided as a Base64 string) to a specified format such as PDF, CSV, HTML, or XPS.")
-    def convert_excel(excel_b64string: str, format: str):
+    def convert_excel(spreadsheet_b64string: str, format: str):
         """
        Converts an Excel file to various other formats.
 
@@ -125,20 +125,22 @@ def register_tools() -> None:
        and a target format string, returning the converted file content.
 
        Parameters:
-       - excel_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
+       - spreadsheet_b64string: The content of the Excel file (.xlsx or .xls) encoded as a Base64 string.
                           Note: Do not pass a file path; the file content must be read and encoded first.
        - format: The desired output format (e.g., 'PDF', 'CSV', 'HTML', 'XPS', 'ODS').
        """
-        return convert_spreadsheet(excel_b64string, format)
-    
+        return core.convert.convert_spreadsheet(spreadsheet_b64string, format)
+
 def run_server(transport: str | None=None, host: str='0.0.0.0', port: int=8080, path: str='/mcp', client_id: str | None=None, client_secret: str| None=None) -> None:
     logger = _setup_logging()
     register_tools()
     tr = (transport or os.getenv('MCP_TRANSPORT') or os.getenv('TRANSPORT') or 'stdio').strip().lower()
+    logger.info(
+        f"Client ID( {os.getenv('ASPOSE_CLOUD_CLIENT_ID')}) and Client Secret ({os.getenv('ASPOSE_CLOUD_CLIENT_SECRET')})")
     if client_id is not None and client_secret is not None:
-        logger.info(f"Client ID( {client_id}) and Client Secret ({client_secret})")
+
         os.environ['ASPOSE_CLOUD_CLIENT_ID'] = client_id
-        os.environ['ASPOSE_CLOUD_SECRET_KEY'] = client_secret
+        os.environ['ASPOSE_CLOUD_CLIENT_SECRET'] = client_secret
 
     host_env = (os.getenv('MCP_HOST') or os.getenv('HOST') or host)
     port_env = int(os.getenv('MCP_PORT') or os.getenv('PORT') or port)

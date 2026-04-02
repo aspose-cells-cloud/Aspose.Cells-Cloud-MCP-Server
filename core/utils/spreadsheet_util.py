@@ -4,7 +4,7 @@ from asposecellscloud import CellsApi
 
 def apply_license(client_id:str, client_secret:str):
     os.environ["ASPOSE_CLOUD_CLIENT_ID"] = client_id
-    os.environ["ASPOSE_CLOUD_SECRET_KEY"] =client_secret
+    os.environ["ASPOSE_CLOUD_CLIENT_SECRET"] =client_secret
     cells_cloud_client = get_cells_cloud_client()
 
 def get_cells_cloud_client()->CellsApi:

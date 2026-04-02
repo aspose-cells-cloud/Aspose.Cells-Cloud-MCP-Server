@@ -1,0 +1,3 @@
+fastmcp
+asposecellscloud==26.2.0
+pytest
