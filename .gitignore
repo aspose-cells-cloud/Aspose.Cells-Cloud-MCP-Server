@@ -15,3 +15,7 @@ venv/
 .env.*
 /tests/data/
 .idea/
+linux-packages/
+packages/
+temp_fix/
+temp_yaml/

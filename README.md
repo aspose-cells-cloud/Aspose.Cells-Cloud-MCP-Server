@@ -61,6 +61,22 @@ Supported MCP transports: `stdio`, `streamable-http`, `sse`.
 - `MCP_SSE_PATH` — events path for `sse` (default `/sse`)
 - `LOG_LEVEL` — logging level (`INFO`, `DEBUG`, ...)
 
+## How to run Aspose Cells Cloud MCP Server in Docker Container
+
+### Build Docker Image
+
+```cmd
+
+docker build -t docker.registry.svc.k8s.dynabic.com/cells/aspose-cells-cloud-mcp-server:26.4.0 .  
+
+```
+### Run Docker Image
+
+```cmd
+ 
+ docker run -itdp 28080:8080  -e MCP_TRANSPORT="streamable-http" -e ASPOSE_CLOUD_CLIENT_ID="yourt-aspose-cloud-client_id" -e ASPOSE_CLOUD_CLIENT_SECRET="your-aspose-cloud-client-secret" --isolation hyperv  --name my-aspose-cells-cloud-mcp-instance   docker.registry.svc.k8s.dynabic.com/cells/aspose-cells-cloud-mcp-server:26.4.0
+
+```
 
 ## Aspose.Cells Cloud License
 
