@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aspose-cells-cloud-mcp"
-version = "26.3.0"
+version = "26.4.0"
 description = "MCP server for Aspose.Cells Cloud automation (FastMCP-based)"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -14,7 +14,7 @@ authors = [
 license = { file = "LICENSE" }
 dependencies = [
   "fastmcp",
-  "asposecellsclou>=26.1.0",
+  "asposecellscloud>=26.1.0",
 ]
 
 keywords = [
