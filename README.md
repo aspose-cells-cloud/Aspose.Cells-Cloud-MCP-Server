@@ -1,6 +1,6 @@
 ![](https://img.shields.io/badge/aspose.cells%20Cloud%20MCP-26.4.0-green?style=for-the-badge&logo=python)
-![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Python Version](https://img.shields.io/badge/python-3.11%2B-blue?style=for-the-badge&logo=python)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge&logo=python)
 
 ## Overview
 
