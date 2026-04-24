@@ -17,16 +17,20 @@ You'll need to obtain a valid license for Aspose.Cells Cloud. The package will i
 
 ## Installation
 
-```bash
-pip install aspose-cells-cloud-mcp
+```powershell
+
+python -m pip install aspose-cells-cloud-mcp
+
 ```
 
 From source (download repo and install requirements):
 
 ```powershell
+
 git clone https://github.com/aspose-cells-cloud/Aspose.Cells-Cloud-MCP-Server
 cd Aspose.Cells-Cloud-MCP-Server
 python -m pip install -r requirements.txt
+
 ```
 
 ## Command Line Interface
@@ -81,33 +85,6 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 The Aspose.HTML Cloud API itself requires a separate subscription � a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
 
-## Tools
-
-See full list and signatures in `mcp_server.py` (function `register_tools`) and tests in `tests/features/*`.
-
-Main tool categories:
-
-- content/reading: create document, insert/delete/read text, headings, lists, HTML/Markdown
-- layout: pages, breaks, columns, headers/footers, page numbering
-- tables: create and format tables
-- watermarks: watermarks
-- links/bookmarks: hyperlinks and bookmarks
-- properties: document properties
-- protection: protection and restrictions
-- comments/notes: comments, footnotes/endnotes
-- export/render: export, page rendering
-
-## Example Workflow via an MCP Client
-
-Sequence of tool calls (names match the server):
-
-1. `create_document` → get `doc_id`
-2. `add_heading` (e.g., levels 1–3)
-3. `add_paragraph` / `insert_text_end`
-4. `add_table_end` or `add_table_at_paragraph`
-5. `add_watermark_text` or `add_watermark_image_base64`
-6. `export_base64` (e.g., `fmt="pdf"`) — get file as Base64
-
 ## Integration with MCP Clients
 
 - Claude Desktop MCP: add this server with `streamable-http` or `sse` transport and the URL printed by the server at startup.
@@ -115,10 +92,6 @@ Sequence of tool calls (names match the server):
 
 ## License
 
-This package is licensed under the MIT License. However, it depends on Aspose.Words for Python via .Net library, which is proprietary, closed-source library.
+This package is licensed under the MIT License. However, it depends on Aspose.Cells Cloud SDK for Python library, which is an open-source library.
 
-⚠️ You must obtain valid license for Aspose.Words for Python via .Net library. This repository does not include or distribute any proprietary components.
-
-## Trademarks
-
-This project may contain trademarks or logos for projects, products, or services. Use of third-party trademarks or logos is subject to those third-party policies.
+You must obtain valid client credentials for Aspose.Cells Cloud.
