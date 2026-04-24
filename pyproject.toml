@@ -14,11 +14,9 @@ authors = [
 license = { file = "LICENSE" }
 dependencies = [
   "fastmcp",
+  "asposecellscloud",
 ]
-[project.optional-dependencies]
-aspose = [
-    "asposecellscloud>=26.1.0"
-]
+
 keywords = [
   "MCP",
   "Aspose",
