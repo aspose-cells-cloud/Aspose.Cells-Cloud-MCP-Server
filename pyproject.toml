@@ -9,14 +9,16 @@ description = "MCP server for Aspose.Cells Cloud automation (FastMCP-based)"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 authors = [
-  { name = "Aspose", email = "support@aspose.com" }
+  { name = "Aspose Cloud", email = "support@aspose.com" }
 ]
 license = { file = "LICENSE" }
 dependencies = [
   "fastmcp",
-  "asposecellscloud>=26.1.0",
 ]
-
+[project.optional-dependencies]
+aspose = [
+    "asposecellscloud>=26.1.0"
+]
 keywords = [
   "MCP",
   "Aspose",
