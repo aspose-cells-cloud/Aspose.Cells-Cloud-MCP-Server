@@ -1,3 +1,4 @@
+![](https://img.shields.io/badge/aspose.cells%20Cloud%20MCP-26.4.0-green?style=for-the-badge&logo=python)
 ![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -13,7 +14,7 @@
 
 - Python 3.11+
 - [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). This library is a [commercial product](https://purchase.aspose.cloud/buy/cells/python).  
-You'll need to obtain a valid license for Aspose.Cells Cloud. The package will install this dependency, but you're responsible for complying with Aspose's licensing terms.
+  You'll need to obtain a valid license for Aspose.Cells Cloud. The package will install this dependency, but you're responsible for complying with Aspose's licensing terms.
 
 ## Installation
 
@@ -68,30 +69,31 @@ Supported MCP transports: `stdio`, `streamable-http`, `sse`.
 
 ```cmd
 
-docker build -t docker.registry.svc.k8s.dynabic.com/cells/aspose-cells-cloud-mcp-server:26.4.0 .  
+docker build -t aspose-cells-cloud-mcp-server:26.4.0 .
 
 ```
+
 ### Run Docker Image
 
 ```cmd
- 
- docker run -itdp 28080:8080  -e MCP_TRANSPORT="streamable-http" -e ASPOSE_CLOUD_CLIENT_ID="yourt-aspose-cloud-client_id" -e ASPOSE_CLOUD_CLIENT_SECRET="your-aspose-cloud-client-secret" --isolation hyperv  --name my-aspose-cells-cloud-mcp-instance   docker.registry.svc.k8s.dynabic.com/cells/aspose-cells-cloud-mcp-server:26.4.0
+
+ docker run -itdp 28080:8080  -e MCP_TRANSPORT="streamable-http" -e ASPOSE_CLOUD_CLIENT_ID="yourt-aspose-cloud-client_id" -e ASPOSE_CLOUD_CLIENT_SECRET="your-aspose-cloud-client-secret" --isolation hyperv  --name my-aspose-cells-cloud-mcp-instance  aspose-cells-cloud-mcp-server:26.4.0
 
 ```
-
-## Aspose.Cells Cloud License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
-The Aspose.HTML Cloud API itself requires a separate subscription � a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
-
-## Integration with MCP Clients
-
-- Claude Desktop MCP: add this server with `streamable-http` or `sse` transport and the URL printed by the server at startup.
-- Any MCP (JSON) clients — configure the matching transport and path.
 
 ## License
 
 This package is licensed under the MIT License. However, it depends on Aspose.Cells Cloud SDK for Python library, which is an open-source library.
 
 You must obtain valid client credentials for Aspose.Cells Cloud.
+
+## Aspose.Cells Cloud License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+The Aspose.Cells Cloud API itself requires a separate subscription a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
+
+## Integration with MCP Clients
+
+- Claude Desktop MCP: add this server with `streamable-http` or `sse` transport and the URL printed by the server at startup.
+- Any MCP (JSON) clients — configure the matching transport and path.
