@@ -83,15 +83,9 @@ docker build -t aspose-cells-cloud-mcp-server:26.4.0 .
 
 ## License
 
-This package is licensed under the MIT License. However, it depends on Aspose.Cells Cloud SDK for Python library, which is an open-source library.
+This package is licensed under the MIT [LICENSE](LICENSE). However, it depends on Aspose.Cells Cloud SDK for Python library, which is an open-source library.
 
-You must obtain valid client credentials for Aspose.Cells Cloud.
-
-## Aspose.Cells Cloud License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
-The Aspose.Cells Cloud API itself requires a separate subscription a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
+You must obtain [valid client credentials](https://purchase.aspose.cloud/) for Aspose.Cells Cloud.
 
 ## Integration with MCP Clients
 
