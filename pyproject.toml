@@ -49,11 +49,8 @@ classifiers = [
 py-modules = ["mcp_server"]
 
 [tool.setuptools.packages.find]
-include = ["core*", "aliases*"]
+include = ["core*"]
 
 [project.scripts]
 aspose-cells-cloud-mcp = "mcp_server:run_server"
 
-[tool.pytest.ini_options]
-addopts = "-q"
-testpaths = ["tests"]
