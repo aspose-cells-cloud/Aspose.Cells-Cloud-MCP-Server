@@ -8,4 +8,9 @@ def apply_license(client_id:str, client_secret:str):
     cells_cloud_client = get_cells_cloud_client()
 
 def get_cells_cloud_client()->CellsApi:
-    return CellsApi( os.getenv("ASPOSE_CLOUD_CLIENT_ID"), os.getenv("ASPOSE_CLOUD_CLIENT_SECRET"))
+    base_url = os.getenv("ASPOSE_CLOUD_API_URL")
+    if base_url is None or len(base_url.strip()) ==0:
+        return CellsApi(os.getenv("ASPOSE_CLOUD_CLIENT_ID"), os.getenv("ASPOSE_CLOUD_CLIENT_SECRET"))
+    else:
+        return CellsApi(os.getenv("ASPOSE_CLOUD_CLIENT_ID"), os.getenv("ASPOSE_CLOUD_CLIENT_SECRET"),
+                        base_uri=os.getenv("ASPOSE_CLOUD_API_URL"))

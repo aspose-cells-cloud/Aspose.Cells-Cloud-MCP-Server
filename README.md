@@ -1,37 +1,35 @@
-![](https://img.shields.io/badge/aspose.cells%20Cloud%20MCP-26.4.0-green?style=for-the-badge&logo=python)
-![Python Version](https://img.shields.io/badge/python-3.11%2B-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge&logo=python)
+# Aspose.Cells Cloud MCP Server
+
+![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Overview
-
-**Aspose.Cells Cloud MCP Server** is a FastMCP-based MCP server built on top of [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). It automates the creation and editing of Microsoft Excel spreadsheets and exposes operations as MCP tools that any MCP-compatible client can call. Supported transports: `stdio`, `streamable-http`, `sse`.
+**Aspose.Cells Cloud MCP Server** is a FastMCP-based MCP server built on top of [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). It automates Microsoft Excel spreadsheet creation and editing and exposes operations as MCP tools that any MCP-compatible client can call. Supported transports: `stdio`, `streamable-http`, `sse`.
 
 ## Features
 
-- convert spreadsheet
+- Upload the spreadsheet to Aspose Cloud Storage.
+- Save the spreadsheet as different format file in Aspose Cloud Storage.
+- 
 
 ## Requirements
 
 - Python 3.11+
 - [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). This library is a [commercial product](https://purchase.aspose.cloud/buy/cells/python).  
-  You'll need to obtain a valid license for Aspose.Cells Cloud. The package will install this dependency, but you're responsible for complying with Aspose's licensing terms.
+You'll need to obtain a valid license for Aspose.Cells Cloud. The package will install this dependency, but you're responsible for complying with Aspose's licensing terms.
 
 ## Installation
 
-```powershell
-
-python -m pip install aspose-cells-cloud-mcp
-
+```bash
+pip install aspose-cells-cloud-mcp
 ```
 
 From source (download repo and install requirements):
 
-```powershell
-
+```bash
 git clone https://github.com/aspose-cells-cloud/Aspose.Cells-Cloud-MCP-Server
 cd Aspose.Cells-Cloud-MCP-Server
-python -m pip install -r requirements.txt
-
+pip install -r requirements.txt
 ```
 
 ## Command Line Interface
@@ -63,31 +61,51 @@ Supported MCP transports: `stdio`, `streamable-http`, `sse`.
 - `MCP_SSE_PATH` — events path for `sse` (default `/sse`)
 - `LOG_LEVEL` — logging level (`INFO`, `DEBUG`, ...)
 
-## How to run Aspose Cells Cloud MCP Server in Docker Container
 
-### Build Docker Image
+## Aspose.Cells Cloud License
 
-```cmd
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-docker build -t aspose-cells-cloud-mcp-server:26.4.0 .
+The Aspose.HTML Cloud API itself requires a separate subscription � a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
 
-```
+## Tools
 
-### Run Docker Image
+See full list and signatures in `mcp_server.py` (function `register_tools`) and tests in `tests/features/*`.
 
-```cmd
+Main tool categories:
 
- docker run -itdp 28080:8080  -e MCP_TRANSPORT="streamable-http" -e ASPOSE_CLOUD_CLIENT_ID="yourt-aspose-cloud-client_id" -e ASPOSE_CLOUD_CLIENT_SECRET="your-aspose-cloud-client-secret" --isolation hyperv  --name my-aspose-cells-cloud-mcp-instance  aspose-cells-cloud-mcp-server:26.4.0
+- content/reading: create document, insert/delete/read text, headings, lists, HTML/Markdown
+- layout: pages, breaks, columns, headers/footers, page numbering
+- tables: create and format tables
+- watermarks: watermarks
+- links/bookmarks: hyperlinks and bookmarks
+- properties: document properties
+- protection: protection and restrictions
+- comments/notes: comments, footnotes/endnotes
+- export/render: export, page rendering
 
-```
+## Example Workflow via an MCP Client
 
-## License
+Sequence of tool calls (names match the server):
 
-This package is licensed under the MIT [LICENSE](LICENSE). However,  it depends on Aspose.Cells Cloud SDK for Python is an open-source library.
-
-You must obtain [valid client credentials](https://purchase.aspose.cloud/) for Aspose.Cells Cloud.
+1. `create_document` → get `doc_id`
+2. `add_heading` (e.g., levels 1–3)
+3. `add_paragraph` / `insert_text_end`
+4. `add_table_end` or `add_table_at_paragraph`
+5. `add_watermark_text` or `add_watermark_image_base64`
+6. `export_base64` (e.g., `fmt="pdf"`) — get file as Base64
 
 ## Integration with MCP Clients
 
 - Claude Desktop MCP: add this server with `streamable-http` or `sse` transport and the URL printed by the server at startup.
 - Any MCP (JSON) clients — configure the matching transport and path.
+
+## License
+
+This package is licensed under the MIT License. However, it depends on Aspose.Words for Python via .Net library, which is proprietary, closed-source library.
+
+⚠️ You must obtain valid license for Aspose.Words for Python via .Net library. This repository does not include or distribute any proprietary components.
+
+## Trademarks
+
+This project may contain trademarks or logos for projects, products, or services. Use of third-party trademarks or logos is subject to those third-party policies.
