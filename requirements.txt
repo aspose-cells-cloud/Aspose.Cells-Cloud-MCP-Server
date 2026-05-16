@@ -1,4 +1,4 @@
 fastmcp[all]==3.2.4
 platformdirs
-asposecellscloud==26.3.1
+asposecellscloud==26.5
 pytest

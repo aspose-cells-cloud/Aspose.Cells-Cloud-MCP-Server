@@ -14,3 +14,12 @@ def get_cells_cloud_client()->CellsApi:
     else:
         return CellsApi(os.getenv("ASPOSE_CLOUD_CLIENT_ID"), os.getenv("ASPOSE_CLOUD_CLIENT_SECRET"),
                         base_uri=os.getenv("ASPOSE_CLOUD_API_URL"))
+    
+def num_to_cell(row, col):
+    col += 1
+    column_name = ""
+    while col > 0:
+        col -= 1
+        column_name = chr(col % 26 + 65) + column_name
+        col //= 26  
+    return f"{column_name}{row + 1}"

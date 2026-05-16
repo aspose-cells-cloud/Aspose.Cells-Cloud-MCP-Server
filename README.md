@@ -6,11 +6,21 @@
 ## Overview
 **Aspose.Cells Cloud MCP Server** is a FastMCP-based MCP server built on top of [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). It automates Microsoft Excel spreadsheet creation and editing and exposes operations as MCP tools that any MCP-compatible client can call. Supported transports: `stdio`, `streamable-http`, `sse`.
 
+## Aspose.Cells Cloud MCP Endpoint
+
+```
+https://api.aspose.cloud/cells/mcp
+```
+
 ## Features
 
 - Upload the spreadsheet to Aspose Cloud Storage.
 - Save the spreadsheet as different format file in Aspose Cloud Storage.
-- 
+- Download the spreadsheet from Aspose Cloud Storage.
+- Trim content in the spreadsheet.
+- Delete text content in the spreadsheet.
+- Add text content in the spreadsheet.
+- Word case text content in the spreadsheet.
 
 ## Requirements
 
@@ -44,8 +54,8 @@ By default, the server runs with the `stdio` transport.
 
 Run without installation:
 
-```bash
-python mcp_server.py
+```powershell
+python .\mcp_server.py
 ```
 
 ## Transports and Configuration
