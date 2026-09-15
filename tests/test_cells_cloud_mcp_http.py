@@ -1,12 +1,31 @@
-import os
 
+import os
 import pytest
-import asyncio
 import base64
-import binascii
 from fastmcp import Client
 
 from tests.test_data_handler import get_book1_xlsx, get_book_text_ods, get_booktext_xlsx
+
+from pathlib import Path
+
+# Converted/downloaded bytes land in the gitignored tests/data/ directory rather
+# than the repository root, so a test run never leaves stray artifacts behind.
+_OUTPUT_DIR = Path(__file__).resolve().parent / "data"
+
+
+def _output(filename: str) -> str:
+    _OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    return str(_OUTPUT_DIR / filename)
+
+# Windows dev machines often route 127.0.0.1 through a local HTTP proxy (e.g.
+# Clash/V2Ray), which answers loopback requests with 502. Make sure the loopback
+# target bypasses any proxy so the MCP client connects to the local server directly.
+for _var in ("NO_PROXY", "no_proxy"):
+    _existing = os.environ.get(_var, "")
+    _hosts = {h.strip() for h in _existing.split(",") if h.strip()}
+    _missing = [h for h in ("127.0.0.1", "localhost") if h not in _hosts]
+    if _missing:
+        os.environ[_var] = ",".join(_hosts | set(_missing))
 
 config = {
     "mcpServers": {
@@ -18,6 +37,7 @@ config = {
 }
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 class TestCellsCloudMCPHttp:
 
@@ -45,7 +65,7 @@ class TestCellsCloudMCPHttp:
             else:
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("Book1-Http.pdf", "wb") as file:
+                with open(_output("Book1-Http.pdf"), "wb") as file:
                     file.write(filedata)
                 assert  True
 
@@ -68,7 +88,7 @@ class TestCellsCloudMCPHttp:
 
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("test_convert_excel_to_csv_workflow.csv", "wb") as file:
+                with open(_output("test_convert_excel_to_csv_workflow.csv"), "wb") as file:
                     file.write(filedata)
                 assert  True
     async def test_convert_excel_to_pdf_workflow(self):
@@ -89,7 +109,7 @@ class TestCellsCloudMCPHttp:
 
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("test_convert_excel_to_pdf_workflow.pdf", "wb") as file:
+                with open(_output("test_convert_excel_to_pdf_workflow.pdf"), "wb") as file:
                     file.write(filedata)
                 assert  True
     async def test_convert_ods_to_pdf_workflow(self):
@@ -110,7 +130,7 @@ class TestCellsCloudMCPHttp:
 
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("test_convert_ods_to_pdf_workflow.pdf", "wb") as file:
+                with open(_output("test_convert_ods_to_pdf_workflow.pdf"), "wb") as file:
                     file.write(filedata)
                 assert  True
     async def test_convert_excel_to_json_workflow(self):
@@ -131,7 +151,7 @@ class TestCellsCloudMCPHttp:
 
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("test_convert_excel_to_json_workflow.json", "wb") as file:
+                with open(_output("test_convert_excel_to_json_workflow.json"), "wb") as file:
                     file.write(filedata)
                 assert True
 
@@ -153,7 +173,7 @@ class TestCellsCloudMCPHttp:
 
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("test_convert_excel_workflow.pdf", "wb") as file:
+                with open(_output("test_convert_excel_workflow.pdf"), "wb") as file:
                     file.write(filedata)
                 assert True
     async def test_upload_save_download_workflow(self):
@@ -165,34 +185,34 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='upload_file',
-                arguments={'file_content_b64string': book1_xlsx}
+                arguments={'file_content_b64string': book1_xlsx,'file_name':'book1.xlsx'}
             )
 
             if result.is_error:
                 assert False
 
-            file_token =  "".join([c.text for c in result.content if hasattr(c, 'text')])
+            file_uuid =  "".join([c.text for c in result.content if hasattr(c, 'text')])
 
             result = await client.call_tool(
                 name='save_spreadsheet_as',
-                arguments={'file_token': file_token,"target_format":"pdf"}
+                arguments={'file_uuid': file_uuid,"target_format":"pdf"}
             )
 
             if result.is_error:
                 assert False
 
-            file_token = "".join([c.text for c in result.content if hasattr(c, 'text')])
+            file_uuid = "".join([c.text for c in result.content if hasattr(c, 'text')])
 
             result = await client.call_tool(
                 name='download_file',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
             if result.is_error:
                 assert False
             else:
                 success_message = "".join([c.text for c in result.content if hasattr(c, 'text')])
                 filedata = base64.b64decode(success_message)
-                with open("book1_xlsx_download.xlsx", "wb") as file:
+                with open(_output("book1_xlsx_download.xlsx"), "wb") as file:
                     file.write(filedata)
                 assert True
     async def test_get_excel_structure_workflow(self):
@@ -238,11 +258,11 @@ class TestCellsCloudMCPHttp:
             if result.is_error:
                 assert False
 
-            file_token =  "".join([c.text for c in result.content if hasattr(c, 'text')])
+            file_uuid =  "".join([c.text for c in result.content if hasattr(c, 'text')])
 
             result = await client.call_tool(
                 name='trim_text_from_trailing',
-                arguments={'file_token': file_token,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -250,7 +270,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='trim_text_from_leading',
-                arguments={'file_token': file_token,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -258,7 +278,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_extra_line_breaks',
-                arguments={'file_token': file_token,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -266,7 +286,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_all_line_breaks',
-                arguments={'file_token': file_token,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -274,7 +294,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='word_case',
-                arguments={'file_token': file_token, "worksheet": "Text", "_range": "D4:D4"}
+                arguments={'file_uuid': file_uuid, "worksheet": "Text", "_range": "D4:D4"}
             )
 
             if result.is_error:
@@ -282,7 +302,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_non_printing_characters',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
@@ -290,7 +310,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_text_characters',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
@@ -298,14 +318,14 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_numeric_characters',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
                 assert False
             result = await client.call_tool(
                 name='remove_symbols',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
@@ -313,7 +333,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_punctuation_marks',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
@@ -327,11 +347,11 @@ class TestCellsCloudMCPHttp:
             if result.is_error:
                 assert False
 
-            file_token =  "".join([c.text for c in result.content if hasattr(c, 'text')])
+            file_uuid =  "".join([c.text for c in result.content if hasattr(c, 'text')])
 
             result = await client.call_tool(
                 name='remove_custom_characters',
-                arguments={'file_token': file_token, 'custom_characters':'\t'}
+                arguments={'file_uuid': file_uuid, 'custom_characters':'\t'}
             )
 
             if result.is_error:
@@ -339,7 +359,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_first_n_characters',
-                arguments={'file_token': file_token,"number":2,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"number":2,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -347,7 +367,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_last_n_characters',
-                arguments={'file_token': file_token,"number":2,"worksheet":"Text","_range":"D4:D4"}
+                arguments={'file_uuid': file_uuid,"number":2,"worksheet":"Text","_range":"D4:D4"}
             )
 
             if result.is_error:
@@ -355,7 +375,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_before_text',
-                arguments={'file_token': file_token, "text": "Aspose"}
+                arguments={'file_uuid': file_uuid, "text": "Aspose"}
             )
 
             if result.is_error:
@@ -363,14 +383,14 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='remove_after_text',
-                arguments={'file_token': file_token, "text": "Aspose"}
+                arguments={'file_uuid': file_uuid, "text": "Aspose"}
             )
 
             if result.is_error:
                 assert False
             result = await client.call_tool(
                 name='add_text_at_head',
-                arguments={'file_token': file_token, "text": "Aspose"}
+                arguments={'file_uuid': file_uuid, "text": "Aspose"}
             )
 
             if result.is_error:
@@ -378,7 +398,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='add_text_at_tail',
-                arguments={'file_token': file_token, "text": "Cells"}
+                arguments={'file_uuid': file_uuid, "text": "Cells"}
             )
 
             if result.is_error:
@@ -386,7 +406,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='add_text_before_text',
-                arguments={'file_token': file_token, "text": "Cells","select_text":"Aspose."}
+                arguments={'file_uuid': file_uuid, "text": "Cells","select_text":"Aspose."}
             )
 
             if result.is_error:
@@ -394,7 +414,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='add_text_after_text',
-                arguments={'file_token': file_token, "text": " Cloud","select_text":"Aspose.Cells"}
+                arguments={'file_uuid': file_uuid, "text": " Cloud","select_text":"Aspose.Cells"}
             )
 
             if result.is_error:
@@ -402,7 +422,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='convert_number_to_text',
-                arguments={'file_token': file_token}
+                arguments={'file_uuid': file_uuid}
             )
 
             if result.is_error:
@@ -410,7 +430,7 @@ class TestCellsCloudMCPHttp:
 
             result = await client.call_tool(
                 name='convert_line_break_to_text',
-                arguments={'file_token': file_token,"target_text":"\t"}
+                arguments={'file_uuid': file_uuid,"target_text":"\t"}
             )
 
             if result.is_error:

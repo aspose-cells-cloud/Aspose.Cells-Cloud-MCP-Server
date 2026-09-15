@@ -1,32 +1,37 @@
-import base64
+"""Load sample workbook content as Base64 text for the integration tests.
 
-def get_book1_xlsx()->str:
-    try:
-        with open("D:\\cells.cloud-4.0\\src\\testdata\\Book1.xlsx", "rb") as f:
-            binary_data = f.read()
-            base64_bytes = base64.b64encode(binary_data)
-            base64_str = base64_bytes.decode('utf-8')
-            return base64_str
-    except Exception as e:
-        print(e)
+Fixtures live in ``tests/fixtures/`` and are generated offline by
+``tests/generate_fixtures.py`` (stdlib only, no cloud or third-party libs).
+Override the directory with the ``ASPOSE_TEST_DATA_DIR`` env var if you keep
+your own sample files elsewhere.
+
+The loader intentionally returns an empty string when a fixture is missing so a
+misconfigured environment degrades to the existing graceful path instead of a
+hardcoded developer-machine path.
+"""
+
+import base64
+import os
+from pathlib import Path
+
+_FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
+
+
+def _load(name: str) -> str:
+    fixture_dir = Path(os.getenv("ASPOSE_TEST_DATA_DIR", _FIXTURES_DIR))
+    path = fixture_dir / name
+    if not path.is_file():
         return ""
-def get_booktext_xlsx()->str:
-    try:
-        with open("D:\\cells.cloud-4.0\\src\\testdata\\BookText.xlsx", "rb") as f:
-            binary_data = f.read()
-            base64_bytes = base64.b64encode(binary_data)
-            base64_str = base64_bytes.decode('utf-8')
-            return base64_str
-    except Exception as e:
-        print(e)
-        return ""
-def get_book_text_ods()->str:
-    try:
-        with open("D:\\cells.cloud-4.0\\src\\testdata\\BookText.ods", "rb") as f:
-            binary_data = f.read()
-            base64_bytes = base64.b64encode(binary_data)
-            base64_str = base64_bytes.decode('utf-8')
-            return base64_str
-    except Exception as e:
-        print(e)
-        return ""
+    return base64.b64encode(path.read_bytes()).decode("utf-8")
+
+
+def get_book1_xlsx() -> str:
+    return _load("Book1.xlsx")
+
+
+def get_booktext_xlsx() -> str:
+    return _load("BookText.xlsx")
+
+
+def get_book_text_ods() -> str:
+    return _load("BookText.ods")

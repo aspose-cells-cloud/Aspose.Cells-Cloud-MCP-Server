@@ -1,4 +1,7 @@
+# Runtime dependencies only — these are what the Docker images install.
+# Test/lint tooling lives in pyproject.toml's [dev] extra; install it with
+#   pip install -e ".[dev]"
+# so pytest is not shipped into the runtime images or staged into ./packages/.
 fastmcp[all]==3.2.4
 platformdirs
 asposecellscloud==26.5
-pytest

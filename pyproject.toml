@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aspose-cells-cloud-mcp"
-version = "26.4.0"
+version = "26.9"
 description = "MCP server for Aspose.Cells Cloud automation (FastMCP-based)"
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.10,<3.14"
 authors = [
   { name = "Aspose Cloud", email = "support@aspose.com" }
 ]
@@ -32,6 +32,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -53,4 +54,30 @@ include = ["core*"]
 
 [project.scripts]
 aspose-cells-cloud-mcp = "mcp_server:run_server"
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "ruff",
+]
+
+[tool.pytest.ini_options]
+# Cloud/container tests are opt-in: they need live credentials or a running
+# container. The default run stays hermetic (unit tests only).
+addopts = "-m 'not integration and not docker'"
+markers = [
+  "integration: needs live Aspose Cloud credentials (CellsCloudApiBaseUrl/CellsCloudClientId/CellsCloudClientSecret env) and sample workbooks under tests/fixtures/",
+  "docker: needs a running Aspose Cells Cloud MCP container on http://127.0.0.1:28080/cells/mcp",
+]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+# E9 = fatal runtime errors, F = undefined names / unused imports / dead code.
+select = ["E9", "F"]
 

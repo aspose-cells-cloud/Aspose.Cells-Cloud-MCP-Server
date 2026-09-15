@@ -1,22 +1,69 @@
-FROM python:3.12-slim
+# Linux image (recommended for general-purpose deployments).
+#
+# Build:
+#   docker build -f Dockerfile.Linux -t aspose-cells-cloud-mcp .
+#   docker build -f Dockerfile.Linux --build-arg PIP_INDEX_URL=https://pypi.org/simple -t aspose-cells-cloud-mcp .
+#
+# Run (credentials are required; the server cannot reach Aspose Cloud without them):
+#   docker run -d --name cells-mcp -p 8080:8080 \
+#     -e ASPOSE_CLOUD_CLIENT_ID=xxxxxx -e ASPOSE_CLOUD_CLIENT_SECRET=yyyyyy \
+#     -v cells-mcp-state:/state aspose-cells-cloud-mcp
+#   # MCP endpoint http://localhost:8080/mcp, health check at /health
+#
+# See docs/environment-variables.md for the full variable reference.
+
+# Base image is overridable so builds work behind a registry mirror or an
+# internal registry that cannot reach Docker Hub, e.g.:
+#   docker build -f Dockerfile.Linux \
+#     --build-arg PYTHON_IMAGE=internal.registry/mirror/python:3.10-slim .
+ARG PYTHON_IMAGE=python:3.10-slim
+FROM ${PYTHON_IMAGE}
 
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
-ENV PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+# Index used to fetch the runtime dependencies. Defaults to the TUNA mirror;
+# override with --build-arg when PyPI (or that mirror) is unreachable from your
+# builder. Only the *builder* needs this — it is not used at run time.
+ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+
+# Runtime configuration. The server needs Aspose Cloud credentials; provide them
+# at run time with:
+#   -e ASPOSE_CLOUD_CLIENT_ID=... -e ASPOSE_CLOUD_CLIENT_SECRET=...
+#   -e ASPOSE_CLOUD_API_URL=https://api.aspose.cloud/v4.0 (optional override)
+# This image listens for MCP clients over streamable-http on port 8080 by
+# default. Set MCP_TRANSPORT=stdio/sse to switch transport.
+ENV MCP_TRANSPORT=streamable-http
+ENV MCP_HOST=0.0.0.0
+ENV MCP_PORT=8080
+ENV MCP_PATH=/mcp
+
+# FastMCP checks PyPI (https://pypi.org/pypi/fastmcp/json) at startup to print a
+# "new version available" banner. That is an unnecessary outbound call from a
+# production container and delays or fails on a cluster without egress to PyPI.
+# Values are "stable" | "prerelease" | "off" (not 0/false).
+ENV FASTMCP_CHECK_FOR_UPDATES=off
+
+# Directory holding registry.db, the SQLite map from file_uuid handles to their
+# cloud location. Created here so the server has a writable, predictable path out
+# of the box — but MOUNT A VOLUME ON IT in production, otherwise every issued
+# file_uuid is invalidated when the container is recreated.
+ENV MCP_STATE_DIR=/state
+RUN mkdir -p /state
 
 COPY requirements.txt .
-
-RUN pip install -r requirements.txt
-
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY mcp_server.py .
-COPY core\     .
-COPY LICENSE   .
+COPY core ./core
+# Registry maintenance helper (scripts/init_registry_db.py); documented in the
+# README for pre-creating or migrating registry.db on a freshly mounted volume.
+COPY scripts ./scripts
+COPY LICENSE .
 
+EXPOSE 8080
 
-EXPOSE 8000
-
-CMD ["python", "server.py"]
+CMD ["python", "mcp_server.py"]

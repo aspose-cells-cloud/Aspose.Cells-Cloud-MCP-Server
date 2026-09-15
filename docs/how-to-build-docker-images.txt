@@ -1,0 +1,78 @@
+# Building the Windows (offline) image — Dockerfile
+#
+# The Dockerfile installs a Python 3.12 interpreter and every runtime wheel from
+# the local ./packages/ directory using `pip --no-index`, so the BUILD itself
+# needs no network access. ./packages/ is gitignored, so it must be staged by
+# hand (or by the release pipeline) before building.
+#
+# CRITICAL: the staged wheels must exactly satisfy requirements.txt.
+# An unpinned `pip download fastmcp` fetches the LATEST fastmcp, which cannot
+# satisfy the pinned `fastmcp[all]==3.2.4`, and the build then dies at the
+# pip install step with:
+#     ERROR: Could not find a version that satisfies the requirement fastmcp[all]==3.2.4
+# Always stage FROM requirements.txt so the two cannot drift apart.
+# (pytest was removed from requirements.txt — it is a dev-only dependency and
+# must not be staged or shipped into the runtime image.)
+
+# ---------------------------------------------------------------------------
+# 1. Stage the wheels — run this on a machine WITH network access
+# ---------------------------------------------------------------------------
+# --platform win_amd64 --python-version 3.12 must match the interpreter the
+# Dockerfile installs (python-3.12.0-amd64.exe), NOT your local Python.
+# Quote "fastmcp[all]"-style specs: PowerShell treats an unquoted [all] as a
+# wildcard pattern and mangles the argument.
+# The index is optional; point -i at a mirror reachable from your host.
+
+python -m pip download -r requirements.txt `
+  --platform win_amd64 --python-version 3.12 --only-binary=:all: `
+  -d packages --no-cache-dir `
+  -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# ~75 wheels land in ./packages (asposecellscloud, fastmcp and all transitive
+# deps, including the win_amd64-only ones like pydantic-core, cryptography,
+# watchfiles, websockets and pywin32).
+#
+# Sanity check BEFORE building — this reproduces exactly what the Dockerfile
+# does at the pip install step, so a failure here means the build will fail too:
+python -m pip download --no-index --find-links=packages -r requirements.txt `
+  --platform win_amd64 --python-version 3.12 --only-binary=:all: `
+  -d $env:TEMP\verify-wheels --no-cache-dir
+
+# ---------------------------------------------------------------------------
+# 2. Add the Python installer
+# ---------------------------------------------------------------------------
+# The Dockerfile hardcodes this exact filename and version:
+#     C:\app\packages\python-3.12.0-amd64.exe
+# Download https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe
+# and save it as: packages\python-3.12.0-amd64.exe
+# To use a different patch release, update the Dockerfile's RUN line to match.
+
+# ---------------------------------------------------------------------------
+# 3. Build
+# ---------------------------------------------------------------------------
+docker build -t docker.registry.svc.k8s.dynabic.com/cells/aspose-cells-cloud-mcp-server:<VERSION> .
+
+# Keep <VERSION> in sync across three places, or the cluster silently keeps
+# running the old image:
+#   - this tag
+#   - configuration/prod/cells-cloud-mcp-deployment.yaml  (spec.template.spec.containers[0].image)
+#   - configuration/qa/cells-cloud-mcp-deployment.yaml    (same field)
+# mcp_server.py's __version__ (reported by /version) is a separate value; bump
+# it too if you want the endpoint to identify the release.
+
+# ---------------------------------------------------------------------------
+# 4. Run locally (Windows containers)
+# ---------------------------------------------------------------------------
+# NEVER paste real client id/secret into a file or history — they are rotated in
+# Aspose Cloud. In PowerShell, e.g.:
+#   $env:ASPOSE_CLOUD_CLIENT_ID='<CLIENT_ID>'; $env:ASPOSE_CLOUD_CLIENT_SECRET='<CLIENT_SECRET>'
+# HTTP endpoints are served anonymously (no bearer auth token).
+# MCP_STATE_DIR holds registry.db; without it the handle map lands in the
+# container's user profile and every file_uuid is lost when the container goes.
+
+docker run -itdp 28080:8080 -e MCP_TRANSPORT="streamable-http" -e MCP_PATH="/cells/mcp" -e MCP_STATE_DIR="C:\state" -e ASPOSE_CLOUD_CLIENT_ID="$env:ASPOSE_CLOUD_CLIENT_ID" -e ASPOSE_CLOUD_CLIENT_SECRET="$env:ASPOSE_CLOUD_CLIENT_SECRET" --isolation hyperv --name my-mcp-instance cells-cloud-mcp-server:<VERSION>
+
+# test (requires a running container on http://127.0.0.1:28080/cells/mcp)
+# pytest is not installed by requirements.txt; install the dev extra first:
+#   pip install -e ".[dev]"
+python -m pytest -m docker .\tests\test_cells_cloud_mcp_docker.py
