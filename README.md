@@ -82,6 +82,23 @@ for MCP clients; the same process also serves two plain HTTP endpoints,
 | `MCP_FILE_TTL_HOURS` | *(unset → never)* | Optional hours-after-*registration* (not last use) before a stored `file_uuid` stops resolving. Expires the local handle only — it does not delete the cloud file (see below). |
 | `MCP_CLOUD_TIMEOUT_SECONDS` | `300`          | Upper bound (seconds) for each Aspose Cloud HTTP call made by the SDK. The SDK otherwise sets no timeout, so a stalled or unreachable backend would hang a tool forever; set `0` to disable the bound. |
 
+## How to run Aspose Cells Cloud MCP Server in Docker Container
+
+### Build Docker Image
+
+```cmd
+
+docker build -t aspose-cells-cloud-mcp-server:26.4.0 .
+
+```
+
+### Run Docker Image
+
+```cmd
+
+ docker run -itdp 28080:8080  -e MCP_TRANSPORT="streamable-http" -e ASPOSE_CLOUD_CLIENT_ID="yourt-aspose-cloud-client_id" -e ASPOSE_CLOUD_CLIENT_SECRET="your-aspose-cloud-client-secret" -e MCP_STATE_DIR="C:\state" --isolation hyperv  --name my-aspose-cells-cloud-mcp-instance  aspose-cells-cloud-mcp-server:26.9.0
+
+```
 
 ## Aspose.Cells Cloud License
 
