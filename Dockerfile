@@ -18,10 +18,25 @@ RUN C:\Python\python.exe -m pip install --no-index --find-links=C:\\app\\package
 COPY mcp_server.py .
 COPY core ./core
 # Registry maintenance helper (scripts/init_registry_db.py), for pre-creating or
-# migrating registry.db on a freshly mounted volume.
+# migrating registry.db on a freshly mounted volume. Also used below to bake a
+# ready registry.db into the image.
 COPY scripts ./scripts
 COPY LICENSE   .
 ENV PYTHONDONTWRITEBYTECODE=1
+# Where registry.db lives. Set explicitly so the image is self-contained: left
+# unset, the server falls back to the platform user-data directory
+# (platformdirs), whose location inside a Windows container is not predictable.
+# Mount a volume on this path in production to keep file_uuid handles valid
+# across pod recreation — the mount shadows the baked file below, which is
+# harmless, since core.storage.init() recreates or migrates the schema on first
+# use either way.
+ENV MCP_STATE_DIR=C:\\state
+# Bake a ready registry.db (schema + indexes, no rows) into the image so a bare
+# `docker run` with no volume works out of the box. The schema comes from
+# core.storage via the script, so it cannot drift from what the runtime expects;
+# init() is idempotent, so a later schema change is applied on first start rather
+# than breaking on the pre-existing file.
+RUN C:\\Python\\python.exe scripts\\init_registry_db.py
 # FastMCP checks PyPI at startup to print a "new version available" banner. That
 # outbound call is pointless in a production container and delays or fails on a
 # cluster without egress to PyPI. Values are "stable" | "prerelease" | "off".

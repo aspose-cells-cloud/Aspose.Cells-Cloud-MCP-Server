@@ -48,8 +48,8 @@ ENV MCP_PATH=/mcp
 ENV FASTMCP_CHECK_FOR_UPDATES=off
 
 # Directory holding registry.db, the SQLite map from file_uuid handles to their
-# cloud location. Created here so the server has a writable, predictable path out
-# of the box — but MOUNT A VOLUME ON IT in production, otherwise every issued
+# cloud location. Set and created here so the image is self-contained and the path
+# is predictable — but MOUNT A VOLUME ON IT in production, otherwise every issued
 # file_uuid is invalidated when the container is recreated.
 ENV MCP_STATE_DIR=/state
 RUN mkdir -p /state
@@ -63,6 +63,14 @@ COPY core ./core
 # README for pre-creating or migrating registry.db on a freshly mounted volume.
 COPY scripts ./scripts
 COPY LICENSE .
+
+# Bake a ready registry.db (schema + indexes, no rows) into the image so a bare
+# `docker run` with no volume works out of the box. The schema comes from
+# core.storage via the script, so it cannot drift from what the runtime expects;
+# init() is idempotent, so a later schema change is applied on first start rather
+# than breaking on the pre-existing file. A volume mounted on /state shadows this
+# file, which is harmless — init() recreates the schema on the empty volume.
+RUN python scripts/init_registry_db.py
 
 EXPOSE 8080
 

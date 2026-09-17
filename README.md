@@ -4,9 +4,13 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Overview
-**Aspose.Cells Cloud MCP Server** is a FastMCP-based MCP server built on top of [Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/). It automates Microsoft Excel spreadsheet creation and editing and exposes operations as MCP tools that any MCP-compatible client can call. Supported transports: `stdio`, `streamable-http`, `sse`.
 
-## Aspose.Cells Cloud MCP Endpoint
+**Aspose.Cells Cloud MCP Server** is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+server built with [FastMCP](https://github.com/jlowin/fastmcp) on top of the
+[Aspose.Cells Cloud SDK for Python](https://products.aspose.cloud/cells/python/).
+It exposes spreadsheet automation — file conversion, structure inspection, text
+cleaning/editing — as MCP tools that any MCP-compatible client (Claude Desktop,
+Cline, custom agents, …) can call.
 
 ```
 https://api.aspose.cloud/cells/mcp
@@ -14,13 +18,14 @@ https://api.aspose.cloud/cells/mcp
 
 ## Features
 
-- Upload the spreadsheet to Aspose Cloud Storage.
-- Save the spreadsheet as different format file in Aspose Cloud Storage.
-- Download the spreadsheet from Aspose Cloud Storage.
-- Trim content in the spreadsheet.
-- Delete text content in the spreadsheet.
-- Add text content in the spreadsheet.
-- Word case text content in the spreadsheet.
+- Upload / download workbooks to Aspose Cloud Storage (Base64 <-> `file_uuid`).
+- Inspect the full structure of a workbook as JSON (metadata, worksheets, tables
+  with column formulas, pivot tables, charts, shape coordinates).
+- Convert workbooks to PDF, CSV, JSON, HTML, XPS, ODS, images, … — either from
+  cloud storage or directly from a Base64 payload.
+- Save-as with print-scaling modes and/or arbitrary JSON save options.
+- Clean & edit cell text in place: trim, remove characters by type/position/pattern,
+  add text, fix line breaks, change word case, convert numbers to text.
 
 ## Requirements
 
@@ -60,61 +65,29 @@ python .\mcp_server.py
 
 ## Transports and Configuration
 
-Supported MCP transports: `stdio`, `streamable-http`, `sse`.
+The transport is chosen with `MCP_TRANSPORT` (`stdio` | `streamable-http` | `sse`),
+falling back to the `TRANSPORT` variable and then `stdio`. HTTP transports listen
+for MCP clients; the same process also serves two plain HTTP endpoints,
+`/health` and `/version`.
 
-### Environment Variables
-
-- `MCP_TRANSPORT` — `stdio` | `streamable-http` | `sse` (default `stdio`)
-- `MCP_HOST` — host address (default `0.0.0.0`)
-- `MCP_PORT` — port (default `8080`)
-- `MCP_PATH` — HTTP path for `streamable-http` (default `/mcp`)
-- `MCP_SSE_PATH` — events path for `sse` (default `/sse`)
-- `LOG_LEVEL` — logging level (`INFO`, `DEBUG`, ...)
+| Environment variable | Default            | Meaning                                  |
+| -------------------- | ------------------ | ---------------------------------------- |
+| `MCP_TRANSPORT`      | `stdio`            | Transport: `stdio`, `streamable-http`, `sse` |
+| `MCP_HOST`           | `0.0.0.0`          | Bind address for HTTP transports         |
+| `MCP_PORT`           | `8080`             | Port for HTTP transports                 |
+| `MCP_PATH`           | `/mcp`             | Path for `streamable-http`               |
+| `MCP_SSE_PATH`       | `/sse`             | Events path for `sse`                    |
+| `LOG_LEVEL`          | `INFO`             | Logging verbosity                         |
+| `MCP_STATE_DIR`      | *(platform data dir)* | Directory for the local state DB (`registry.db`). Set this to a writable volume in containers. |
+| `MCP_FILE_TTL_HOURS` | *(unset → never)* | Optional hours-after-*registration* (not last use) before a stored `file_uuid` stops resolving. Expires the local handle only — it does not delete the cloud file (see below). |
+| `MCP_CLOUD_TIMEOUT_SECONDS` | `300`          | Upper bound (seconds) for each Aspose Cloud HTTP call made by the SDK. The SDK otherwise sets no timeout, so a stalled or unreachable backend would hang a tool forever; set `0` to disable the bound. |
 
 
 ## Aspose.Cells Cloud License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-The Aspose.HTML Cloud API itself requires a separate subscription � a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
-
-## Tools
-
-See full list and signatures in `mcp_server.py` (function `register_tools`) and tests in `tests/features/*`.
-
-Main tool categories:
-
-- content/reading: create document, insert/delete/read text, headings, lists, HTML/Markdown
-- layout: pages, breaks, columns, headers/footers, page numbering
-- tables: create and format tables
-- watermarks: watermarks
-- links/bookmarks: hyperlinks and bookmarks
-- properties: document properties
-- protection: protection and restrictions
-- comments/notes: comments, footnotes/endnotes
-- export/render: export, page rendering
-
-## Example Workflow via an MCP Client
-
-Sequence of tool calls (names match the server):
-
-1. `create_document` → get `doc_id`
-2. `add_heading` (e.g., levels 1–3)
-3. `add_paragraph` / `insert_text_end`
-4. `add_table_end` or `add_table_at_paragraph`
-5. `add_watermark_text` or `add_watermark_image_base64`
-6. `export_base64` (e.g., `fmt="pdf"`) — get file as Base64
-
-## Integration with MCP Clients
-
-- Claude Desktop MCP: add this server with `streamable-http` or `sse` transport and the URL printed by the server at startup.
-- Any MCP (JSON) clients — configure the matching transport and path.
-
-## License
-
-This package is licensed under the MIT License. However, it depends on Aspose.Words for Python via .Net library, which is proprietary, closed-source library.
-
-⚠️ You must obtain valid license for Aspose.Words for Python via .Net library. This repository does not include or distribute any proprietary components.
+The Aspose.Cells Cloud API itself requires a separate subscription � a free tier is available at [aspose.cloud](https://purchase.aspose.cloud/pricing).
 
 ## Trademarks
 
